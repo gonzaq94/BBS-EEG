@@ -138,7 +138,7 @@ sizeG = size(G);
 for i=1:length(lambda_vec)
     
         s_hat_mne = MNE(X,G,lambda_vec(i));
-        GCV(i) = immse(Xs,G*s_hat_mne)/(trace(eye()-G*transpose(G)*(G*transpose(G)+lambda_vec(i)*eye(sizeG(1)))))^2;
+        GCV(i) = immse(S,s_hat_mne)/(trace(eye()-G*transpose(G)*(G*transpose(G)+lambda_vec(i)*eye(sizeG(1)))))^2;
 
 end
     

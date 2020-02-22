@@ -1,0 +1,7 @@
+function [s]=MNE(x,A,lambda)
+    sizeA = size(A);
+    sizeA(1)
+    size(A*transpose(A))
+    size(lambda*eye(sizeA(1)))
+    size()lambda*eye(sizeA(1))
+    s = transpose(A)*(A*transpose(A)+lambda*eye(sizeA(1)))\x;
