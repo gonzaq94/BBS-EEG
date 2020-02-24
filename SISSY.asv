@@ -1,0 +1,37 @@
+function [ s ] = SISSY(x,A,T,lambda,alpha)
+%SISSY Summary of this function goes here
+%   Detailed explanation goes here
+    Niterations = 60;
+    rho = 1;
+    
+    P=sparse(rho*(T.'*T+speye(size(T,2))));
+    APi=A/P;
+    L=chol(eye(size(A,1))+APi*A.','lower');
+    s1=A.'*x;
+
+    z = zeros(size(x));
+    y = zeros(size(s1));
+    u = zeros(size(x));
+    v = zeros(size(s1));
+    
+    for it=1:Niterations
+        
+        size(T.')
+        size(z+u/rho)
+       
+        b=s1+rho*(T.'*(z+u/rho)+y+v/rho);
+        s=P\b-APi'*(L'\(L\(APi*b)));
+        
+        z = prox(T*s-u/rho,lambda/rho);
+        
+        y = prox(s-v/rho,lambda*alpha/rho);
+        
+        u = u + rho*(z-T*s);
+        
+        v = v + rho*(y-s);
+        
+        %s = inv(transpose(A)*A+rho*(transpose(T)*T+eye(size(T,1))))    
+    end
+
+end
+

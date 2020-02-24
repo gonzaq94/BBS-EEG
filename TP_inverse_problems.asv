@@ -99,38 +99,71 @@ print('images/lambdaVsSNR1.png','-dpng');
 %}
 
 
-% L curve criterion
+% L curve criterion and Discrepancy principle
 %{
 SNR = 1;
 
 X=Xs+1/sqrt(SNR)*Noise;
 
-lambda_vec = logspace(0.1,10,100);
+lambda_vec = logspace(1e-1,1e2,40);
 err_vec = zeros(length(lambda_vec),1);
+norm_s = zeros(length(lambda_vec),1);
 
 for i=1:length(lambda_vec)
     
         s_hat_mne = MNE(X,G,lambda_vec(i));
-        err_vec(i) = immse(S,s_hat_mne);
+        err_vec(i) = immse(X,G*s_hat_mne);
+        norm_s(i) = norm(s_hat_mne);
 
 end
     
-loglog(lambda_vec,err_vec)
-title('L-curve with SNR = 1')
-ylabel('Mean squared error')
-xlabel('Lambda')
+% L criterion
+val = 352; % from the plot
+[ d, ix ] = min( abs( err_vec- val) );
+
+figure;
+ax = axes;
+plot(norm_s,err_vec);
+ax.XScale = 'log';
+ax.YScale = 'log';
+title('L-curve with SNR = 1');
+ylabel('Mean squared error');
+xlabel('norm of s');
 grid on;
-print('images/L-curve.png','-dpng');
+dim = [.2 .5 .3 .3];
+annotation('textbox',dim,'String',['Lambda min=' num2str(lambda_vec(ix))],'FitBoxToText','on');
+print('images/MNE/L-curve.png','-dpng');
 
+%Discrepancy principle
+
+noise_pwr = norm(Noise)*ones(length(lambda_vec),1);
+
+[xi,yi] = polyxpoly(lambda_vec,err_vec,lambda_vec,noise_pwr);
+
+figure;
+ax = axes;
+plot(lambda_vec,err_vec);
+hold on;
+plot(lambda_vec,noise_pwr);
+title('Discrepancy principle with SNR = 1');
+xlabel('Lambda');
+%xlim([0, 1]);
+%ylim([0, norm(Noise)*2]);
+ax.XScale = 'log';
+ax.YScale = 'log';
+grid on;
+legend('Reconstruction MSE','Noise power');
+dim = [.2 .5 .3 .3];
+annotation('textbox',dim,'String',['Lambda min=' num2str(xi)],'FitBoxToText','on');
+%print('images/MNE/Discrepancy.png','-dpng');
 %}
-
 % Generalized cross validation
-
+%{
 SNR = 1;
 
 X=Xs+1/sqrt(SNR)*Noise;
 
-lambda_vec = linspace(0.1,10,60);
+lambda_vec = linspace(1e-10,1e10,500);
 GCV = zeros(length(lambda_vec),1);
 
 sizeG = size(G);
@@ -138,13 +171,63 @@ sizeG = size(G);
 for i=1:length(lambda_vec)
     
         s_hat_mne = MNE(X,G,lambda_vec(i));
-        GCV(i) = immse(S,s_hat_mne)/(trace(eye()-G*transpose(G)*(G*transpose(G)+lambda_vec(i)*eye(sizeG(1)))))^2;
+        GCV(i) = immse(X,G*s_hat_mne)/(trace(eye()-G*transpose(G)*(G*transpose(G)+lambda_vec(i)*eye(sizeG(1)))))^2;
 
 end
-    
+  
+[C,i] = min(GCV);
+figure;
+ax = axes;
 plot(lambda_vec,GCV)
 title('Generalized cross validation function with SNR = 1')
 ylabel('GCV')
 xlabel('Lambda')
+ax.XScale = 'log';
+ax.YScale = 'log';
 grid on;
+dim = [.2 .5 .3 .3];
+annotation('textbox',dim,'String',['Lambda min=' num2str(lambda_vec(i))],'FitBoxToText','on');
 print('images/GCV.png','-dpng');
+%}
+
+%s_hat_sissy = SISSY(X,G,variation_operator(mesh,'face'),1,0.1,60);
+%immse(S,s_hat_sissy);
+
+% variation of the regularization parameter
+
+lambda_vec = [linspace(0.01,100,6),linspace(100,1000,4) ]
+err_vec = zeros(length(lambda_vec),1);
+
+for i=1:length(lambda_vec)
+        i
+        s_hat_sissy = SISSY(X,G,variation_operator(mesh,'face'),lambda_vec(i),0.1,40);
+        err_vec(i) = immse(S,s_hat_sissy);
+
+end
+    
+plot(lambda_vec,err_vec)
+title('Variation of the regularization parameter with SNR = 1')
+ylabel('Mean squared error')
+xlabel('Lambda')
+grid on;
+print('images/SISSY/lambdaVariation.png','-dpng');
+
+% variation of alpha
+
+alpha_vec = linspace(0,1,10);
+err_vec = zeros(length(alpha_vec),1);
+
+for i=1:length(alpha_vec)
+        i
+        s_hat_sissy = SISSY(X,G,variation_operator(mesh,'face'),200,alpha_vec(i),40);
+        err_vec(i) = immse(S,s_hat_sissy);
+
+end
+    
+plot(alpha_vec,err_vec)
+title('Variation of alpha with SNR = 1 and Lambda=200')
+ylabel('Mean squared error')
+xlabel('Alpha')
+grid on;
+print('images/SISSY/alphaVariation.png','-dpng');
+%}
