@@ -203,9 +203,9 @@ end
 
 DLE_matrix = DLE_matrix /Nit;
 
-plot(DLE_matrix(:,1);
+plot(SNR_vec,DLE_matrix(:,1));
 hold on;
-plot(DLE_matrix(:,2);
+plot(SNR_vec,DLE_matrix(:,2));
 grid on;
 title('DLE boxplot for SNR = 1');
 xlabel('SNR');
