@@ -1,8 +1,7 @@
 function [SOut,LambdaOut]=Gibbs_sampler(X,A)
 
 %number of iterations
-Niter=100;%100
-epsilon = 0.001;
+Niter=2;%100
 
 %get number of sensors and number of dipoles
 [N,D]=size(A);
@@ -67,20 +66,19 @@ for it=1:Niter
     s = S(:,it);
     %step 2: sample sigma_n2
     %sigma_n2 = 1/gamrnd(N/2,2./norm(X-A*s)^2); %things missing
-    sigma_n2 = InverseGamma(N/2+epsilon, norm(X-A*s)^2/2+epsilon);
+    sigma_n2 = InverseGamma(N/2+1, norm(X-A*s)^2/2+1);
     %step 3: sample lambda
     L = sum(q);
     lambda = betarnd(1+L,1+D-L);
     %step 4: sample sigma_s2
     %sigma_s2 = 1/gamrnd(L/2,2./norm(s)^2); %things missing
-    sigma_s2 = InverseGamma(L/2+epsilon, norm(s)^2/2+epsilon);
+    sigma_s2 = InverseGamma(L/2+1, norm(s)^2/2+1e-4);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 % Make the estimation from Q and S using the MAP criterium
 %Q(:,Niter/2:Niter)
-
+%cout = zeros(Niter/2
 for j = 1:Niter/2
     q = Q(:,Niter/2+j); 
     idx = find(q==1); 
@@ -95,7 +93,4 @@ idx = find(q==1);
 R = (A(:,idx)'*A(:,idx))/sigma_n2 + eye(length(idx))/sigma_s2; 
 SOut = zeros(D,1); 
 SOut(idx) = (R\(A(:,idx)'*X))/sigma_n2;
-LambdaOut = length(idx)/D; 
-
-
-
+LambdaOut = length(idx)/D;
