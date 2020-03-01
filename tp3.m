@@ -153,7 +153,7 @@ figure; trisurf(mesh.f,mesh.v(:,1),mesh.v(:,2),mesh.v(:,3),c2);4
 
 %%% DLE vs SNR plot
 
-SNR_vec = linspace(0.1,10,5);
+SNR_vec = [0.1,0.2,0.3,0.5,1,2,10];
 
 % generate dipole positions matrix
 i=1;
@@ -212,4 +212,4 @@ xlabel('SNR');
 ylabel('Mean DLE');
 title('Mean DLE for varying SNR')
 legend('MNE','SISSY');
-print('images/Performance Analysis/DLEvsSNR.png','-dpng');
+print('images/Performance Analysis/DLEvsSNRv2.png','-dpng');
