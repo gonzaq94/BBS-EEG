@@ -59,32 +59,36 @@ lambda=1;
 s_hat_mne = MNE(X,G,lambda);
 
 figure; trisurf(mesh.f,mesh.v(:,1),mesh.v(:,2),mesh.v(:,3),s_hat_mne(:,id));
-title(['MNE algorithm with SNR = 1 and Lambda = ' num2str(lambda)],'FontSize',18);
-%}
+title(['MNE algorithm with SNR = 10 and Lambda = ' num2str(lambda)],'FontSize',18);
 
+%}
 % variation of the regularization parameter
 %{
-lambda_vec = linspace(0.1,1000,100);
+lambda_vec = logspace(-1,3,100);
 err_vec = zeros(length(lambda_vec),1);
 
 for i=1:length(lambda_vec)
     
         s_hat_mne = MNE(X,G,lambda_vec(i));
-        err_vec(i) = immse(S,s_hat_mne);
+        err_vec(i) = norm(X-G*s_hat_mne);
 
 end
     
-plot(lambda_vec,err_vec)
-title('Variation of the regularization parameter with SNR = 1')
-ylabel('Mean squared error')
-xlabel('Lambda')
+semilogx(lambda_vec,err_vec);
+title('Mean Squared Error when varying lambda with SNR = 1');
+ylabel('MSE(X,G*s)');
+xlabel('Lambda');
 grid on;
+ax.XScale = 'log';
+ax.YScale = 'log';
+print('images/MNE/lambda_variation.png','-dpng');
+
 %}
 
 % variation of the SNR and the regularization parameter
 %{
-snr_vec = linspace(0.1,10,10);
-lambda_vec = linspace(0.1,100,40);
+snr_vec = logspace(-1,1,10);
+lambda_vec = logspace(0,3,40);
 err_vec = zeros(length(lambda_vec),length(snr_vec));
 
 for i=1:length(snr_vec)
@@ -93,28 +97,27 @@ for i=1:length(snr_vec)
         
         X=Xs+1/sqrt(snr_vec(i))*Noise;
         s_hat_mne = MNE(X,G,lambda_vec(j));
-        err_vec(j,i) = immse(S,s_hat_mne);
+        err_vec(j,i) = norm(X-G*s_hat_mne);
         
     end
     
-    plot(lambda_vec,err_vec(:,i), 'DisplayName', ['SNR=' num2str(snr_vec(i))]);
-    hold on;
-
-    
+    semilogx(lambda_vec,err_vec(:,i), 'DisplayName', ['SNR=' num2str(snr_vec(i))]);
+    hold on; 
 end
 
 
-title('Variation of the regularization parameter with varying SNR')
-ylabel('Mean squared error')
+title('MSE as a function of lambda with varying SNR')
+ylabel('MSE(X,Gs)')
 xlabel('Lambda')
+ax.XScale = 'log';
+ax.YScale = 'log';
 grid on;
-legend('show');
-print('images/lambdaVsSNR1.png','-dpng');
+legend('show','Location','Northeast');
+print('images/MNE/lambdaVsSNR1_bis.png','-dpng');
 %}
 
-
 % L curve criterion and Discrepancy principle
-
+%{
 SNR = 1;
 
 X=Xs+1/sqrt(SNR)*Noise;
@@ -150,7 +153,7 @@ dim = [.2 .5 .3 .3];
 p = [30 100 200 300];
 annotation('textbox',dim,'String',['Lambda=' num2str(lambda_vec(ix))],'FitBoxToText','on','Position', p);
 print('images/MNE/L-curvev3.png','-dpng');
-
+%}
 %Discrepancy principle
 %{
 noise_pwr = norm(Noise)*ones(length(lambda_vec),1);
@@ -210,55 +213,57 @@ print('images/MNE/GCV2.png','-dpng');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SISSY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %{
+lambda = 1;
+alpha = 0.1;
 s_hat_sissy = SISSY(X,G,variation_operator(mesh,'face'),1,0.1,60);
 
 figure; trisurf(mesh.f,mesh.v(:,1),mesh.v(:,2),mesh.v(:,3),s_hat_sissy(:,id));
-
-plot_eeg(s_hat_mne(idx_electrodes,:),max(max(s_hat_mne(idx_electrodes,:))),256,channel_names);
-title('cleaned EEG data','FontSize',18);
+title(['SISSY algorithm with SNR = 10, Lambda = ' num2str(lambda) ' and alpha = ' num2str(alpha)],'FontSize',18);
+%}
 %}
 %immse(S,s_hat_sissy);
 
 % variation of the regularization parameter
 %{
-lambda_vec = [linspace(0.01,100,6),linspace(100,1000,4) ];
+lambda_vec = logspace(-2,3,20);
 err_vec = zeros(length(lambda_vec),1);
 
 for i=1:length(lambda_vec)
         i
-        s_hat_sissy = SISSY(X,G,variation_operator(mesh,'face'),lambda_vec(i),0.1,40);
-        err_vec(i) = immse(S,s_hat_sissy);
+        s_hat_sissy = SISSY(X,G,variation_operator(mesh,'face'),lambda_vec(i),0.1,30);
+        err_vec(i) = norm(X-G*s_hat_sissy);
 
 end
     
-plot(lambda_vec,err_vec)
-title('Variation of the regularization parameter with SNR = 1')
-ylabel('Mean squared error')
+semilogx(lambda_vec,err_vec)
+title('Mean Squared Error when varying lambda with SNR = 1');
+ylabel('MSE(X,G*S)')
 xlabel('Lambda')
 grid on;
-print('images/SISSY/lambdaVariation.png','-dpng');
+ax.XScale = 'log';
+ax.YScale = 'log';
+print('images/SISSY/lambdaVariation_new.png','-dpng');
 %}
 % variation of alpha
-%{
+
 alpha_vec = [linspace(0,0.1,5),linspace(0.1,1,5) ];
 err_vec = zeros(length(alpha_vec),1);
-
+lambda = 60;
 for i=1:length(alpha_vec)
         i
-        s_hat_sissy = SISSY(X,G,variation_operator(mesh,'face'),200,alpha_vec(i),40);
-        err_vec(i) = immse(S,s_hat_sissy);
+        s_hat_sissy = SISSY(X,G,variation_operator(mesh,'face'),lambda,alpha_vec(i),30);
+        err_vec(i) = norm(X-G*s_hat_sissy);
 
 end
     
 plot(alpha_vec,err_vec)
-title('Variation of alpha with SNR = 1 and Lambda=200')
-ylabel('Mean squared error')
+title(['MSE for varying alpha with SNR = 1 and Lambda = ' num2str(lambda)])
+ylabel('MSE(X,G*s)')
 xlabel('Alpha')
 grid on;
-print('images/SISSY/alphaVariation.png','-dpng');
-%}
+print('images/SISSY/alphaVariation_new.png','-dpng');
+
 
 %%% lambda paramter optimization
 %{
