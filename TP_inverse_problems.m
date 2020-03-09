@@ -246,10 +246,10 @@ ax.YScale = 'log';
 print('images/SISSY/lambdaVariation_new.png','-dpng');
 %}
 % variation of alpha
-
-alpha_vec = [linspace(0,0.1,5),linspace(0.1,1,5) ];
+%{
+alpha_vec = [linspace(0,0.5,30),linspace(0.5,1,5) ];
 err_vec = zeros(length(alpha_vec),1);
-lambda = 60;
+lambda = 6;
 for i=1:length(alpha_vec)
         i
         s_hat_sissy = SISSY(X,G,variation_operator(mesh,'face'),lambda,alpha_vec(i),30);
@@ -262,13 +262,14 @@ title(['MSE for varying alpha with SNR = 1 and Lambda = ' num2str(lambda)])
 ylabel('MSE(X,G*s)')
 xlabel('Alpha')
 grid on;
-print('images/SISSY/alphaVariation_new.png','-dpng');
+print('images/SISSY/alphaVariation_new3.png','-dpng');
 
-
+%}
 %%% lambda paramter optimization
-%{
+
 %lambda_vec = linspace(1e-2,1e4,5);
-lambda_vec = [linspace(0.01,100,6),linspace(100,1000,4) ];
+%lambda_vec = [linspace(0.01,100,6),linspace(100,1000,4) ];
+lambda_vec = logspace(0,2,15);
 loss_function = zeros(length(lambda_vec),1);
 
 T = variation_operator(mesh,'face');
@@ -278,24 +279,27 @@ alpha = 0.1;
 for i=1:length(lambda_vec)
     
         i
-        s_hat_sissy = SISSY(X,G,T,lambda_vec(i),alpha,40);
+        s_hat_sissy = SISSY(X,G,T,lambda_vec(i),alpha,30);
         
         threshold = 0.01*max(max(s_hat_sissy));
-        
         s_aux = s_hat_sissy;
         s_aux(find(s_aux<threshold))=0;
-        
+
         Ts = T*s_hat_sissy;
+        threshold = 0.01*max(max(Ts));
         Ts(find(Ts<threshold)) = 0;
         
         loss_function(i) = norm(Ts)+alpha*norm(s_aux);
 
 end
     
-plot(lambda_vec,loss_function)
+[C,i] = min(loss_function);
+
+semilogx(lambda_vec,loss_function)
 title('Variation of the contraint with lambda for SNR = 1')
 xlabel('Lambda');
 ylabel('L0(Ts) + alpha L0(s)');
 grid on;
-print('images/SISSY/lambdaOptimization.png','-dpng');
-%}
+dim = [.2 .5 .3 .3];
+annotation('textbox',dim,'String',['Lambda min=' num2str(lambda_vec(i))],'FitBoxToText','on');
+print('images/SISSY/lambdaOptimization3.png','-dpng');
