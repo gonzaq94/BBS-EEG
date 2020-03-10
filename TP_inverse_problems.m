@@ -39,7 +39,7 @@ X=Xs+1/sqrt(SNR)*Noise;
 
 %Shat = Gibbs_sampler(X(:,id),G);
 %Shat
-%{
+
 [SOut,LambdaOut]= Gibbs_sampler(X(:,id),G);
 
 title('Localization of a signal of interest (epileptic spike) with the Gibbs sampler');
@@ -49,21 +49,21 @@ plot(G*S(:,id));
 grid on;
 legend('G*s (estimated)','G*s (real)', 'Location','South')
 print('images/Gibbs/spikeLocalization.png','-dpng')
-%}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MNE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%{
+
 lambda=1;
 s_hat_mne = MNE(X,G,lambda);
 
 figure; trisurf(mesh.f,mesh.v(:,1),mesh.v(:,2),mesh.v(:,3),s_hat_mne(:,id));
 title(['MNE algorithm with SNR = 10 and Lambda = ' num2str(lambda)],'FontSize',18);
 
-%}
+
 % variation of the regularization parameter
-%{
+
 lambda_vec = logspace(-1,3,100);
 err_vec = zeros(length(lambda_vec),1);
 
@@ -83,10 +83,10 @@ ax.XScale = 'log';
 ax.YScale = 'log';
 print('images/MNE/lambda_variation.png','-dpng');
 
-%}
+
 
 % variation of the SNR and the regularization parameter
-%{
+
 snr_vec = logspace(-1,1,10);
 lambda_vec = logspace(0,3,40);
 err_vec = zeros(length(lambda_vec),length(snr_vec));
@@ -114,10 +114,10 @@ ax.YScale = 'log';
 grid on;
 legend('show','Location','Northeast');
 print('images/MNE/lambdaVsSNR1_bis.png','-dpng');
-%}
+
 
 % L curve criterion and Discrepancy principle
-%{
+
 SNR = 1;
 
 X=Xs+1/sqrt(SNR)*Noise;
@@ -153,9 +153,9 @@ dim = [.2 .5 .3 .3];
 p = [30 100 200 300];
 annotation('textbox',dim,'String',['Lambda=' num2str(lambda_vec(ix))],'FitBoxToText','on','Position', p);
 print('images/MNE/L-curvev3.png','-dpng');
-%}
+
 %Discrepancy principle
-%{
+
 noise_pwr = norm(Noise)*ones(length(lambda_vec),1);
 
 [xi,yi] = polyxpoly(lambda_vec,err_vec,lambda_vec,noise_pwr);
@@ -176,9 +176,9 @@ legend('Reconstruction MSE','Noise power');
 dim = [.2 .5 .3 .3];
 annotation('textbox',dim,'String',['Lambda min=' num2str(xi)],'FitBoxToText','on');
 %print('images/MNE/Discrepancy.png','-dpng');
-%}
+
 % Generalized cross validation
-%{
+
 SNR = 1;
 
 X=Xs+1/sqrt(SNR)*Noise;
@@ -208,24 +208,24 @@ grid on;
 dim = [.2 .5 .3 .3];
 annotation('textbox',dim,'String',['Lambda min=' num2str(lambda_vec(i))],'FitBoxToText','on');
 print('images/MNE/GCV2.png','-dpng');
-%}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SISSY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%{
+
 lambda = 1;
 alpha = 0.1;
 s_hat_sissy = SISSY(X,G,variation_operator(mesh,'face'),1,0.1,60);
 
 figure; trisurf(mesh.f,mesh.v(:,1),mesh.v(:,2),mesh.v(:,3),s_hat_sissy(:,id));
 title(['SISSY algorithm with SNR = 10, Lambda = ' num2str(lambda) ' and alpha = ' num2str(alpha)],'FontSize',18);
-%}
-%}
+
+
 %immse(S,s_hat_sissy);
 
 % variation of the regularization parameter
-%{
+
 lambda_vec = logspace(-2,3,20);
 err_vec = zeros(length(lambda_vec),1);
 
@@ -244,9 +244,9 @@ grid on;
 ax.XScale = 'log';
 ax.YScale = 'log';
 print('images/SISSY/lambdaVariation_new.png','-dpng');
-%}
+
 % variation of alpha
-%{
+
 alpha_vec = [linspace(0,0.5,30),linspace(0.5,1,5) ];
 err_vec = zeros(length(alpha_vec),1);
 lambda = 6;
@@ -264,7 +264,7 @@ xlabel('Alpha')
 grid on;
 print('images/SISSY/alphaVariation_new3.png','-dpng');
 
-%}
+
 %%% lambda paramter optimization
 
 %lambda_vec = linspace(1e-2,1e4,5);

@@ -31,7 +31,7 @@ active_dipoles = find(mean(S,2)>0);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Different SNRs
-%{
+
 %signal to noise ratio
 SNR_vec=[0.1 1 10];
 
@@ -54,9 +54,9 @@ for i=1:length(SNR_vec)
     title(['SISSY algorithm with SNR = ' num2str(SNR_vec(i))]);
     
 end
-%}
+
 % Correlated noise
-%{
+
 % generate random noise, that corresponds to the background activity model
 Snoise = zeros(size(S));
 Snoise(find(S==0)) = randn(size(find(S==0)));
@@ -87,12 +87,12 @@ for i=1:length(SNR_vec)
     title(['SISSY algorithm with SNR = ' num2str(SNR_vec(i))]);
     
 end
-%}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%% Quantitative comparisons %%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%{
+
 SNR = 1;
 
 % generate dipole positions matrix
@@ -149,12 +149,12 @@ figure; trisurf(mesh.f,mesh.v(:,1),mesh.v(:,2),mesh.v(:,3),c1);
 c2=zeros(size(S(:,1)));
 c2(active_est_dipoles_mne)=1;
 figure; trisurf(mesh.f,mesh.v(:,1),mesh.v(:,2),mesh.v(:,3),c2);4
-%}
+
 
 %%% DLE vs SNR plot
 
 SNR_vec = [0.1,0.2,0.3,0.5,1,2,10];
-
+SNR_vec = logspace(-1,1,7);
 % generate dipole positions matrix
 i=1;
 r_grid = zeros(size(mesh.f));
@@ -203,13 +203,13 @@ end
 
 DLE_matrix = DLE_matrix /Nit;
 
-plot(SNR_vec,DLE_matrix(:,1));
+semilogx(SNR_vec,DLE_matrix(:,1));
 hold on;
-plot(SNR_vec,DLE_matrix(:,2));
+semilogx(SNR_vec,DLE_matrix(:,2));
 grid on;
 title('DLE boxplot for SNR = 1');
 xlabel('SNR');
 ylabel('Mean DLE');
 title('Mean DLE for varying SNR')
 legend('MNE','SISSY');
-print('images/Performance Analysis/DLEvsSNRv2.png','-dpng');
+print('images/Performance Analysis/DLEvsSNR_logscale.png','-dpng');
