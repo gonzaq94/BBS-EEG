@@ -6,4 +6,4 @@ The algorithms are tested for different SNR and for white and colored noise. The
 
 ![](images/original_source_config.PNG)
 
-![](/images/Performance_Analysis/ComparisonSNR10.PNG)
+![](/images/Performances/ComparisonSNR10.PNG)
